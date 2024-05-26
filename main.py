@@ -3,9 +3,19 @@ from api4jenkins import Jenkins
 import logging
 import json
 from time import time, sleep
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 log_level = os.environ.get('INPUT_LOG_LEVEL', 'INFO')
 logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
+
+def get_csrf_crumb(jenkins_url, auth):
+    # Fetch the crumb for CSRF protection
+    response = requests.get(f'{jenkins_url}/crumbIssuer/api/json', auth=auth)
+    response.raise_for_status()
+    crumb_data = response.json()
+    return crumb_data['crumbRequestField'], crumb_data['crumb']
 
 def main():
     # Required
@@ -44,8 +54,22 @@ def main():
     else:
         cookies = {}
 
-    # Initialize Jenkins connection
-    jenkins = Jenkins(url, auth=auth, cookies=cookies)
+    # Initialize Jenkins connection with retry strategy
+    retry_strategy = Retry(
+        total=5,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+        method_whitelist=["HEAD", "GET", "OPTIONS", "POST"]
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session = requests.Session()
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+
+    headers = {
+        "User-Agent": "python-requests/2.31.0"
+    }
+    jenkins = Jenkins(url, auth=auth, cookies=cookies, session=session, headers=headers)
 
     try:
         jenkins.version
@@ -53,6 +77,10 @@ def main():
         raise Exception('Could not connect to Jenkins.') from e
 
     logging.info('Successfully connected to Jenkins.')
+
+    # Get CSRF crumb and update headers
+    crumb_field, crumb_value = get_csrf_crumb(url, auth)
+    jenkins.requester.headers.update({crumb_field: crumb_value})
 
     # Trigger the job
     queue_item = jenkins.build_job(job_name, **parameters)
