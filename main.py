@@ -54,12 +54,12 @@ def main():
     else:
         cookies = {}
 
-    # Initialize Jenkins connection with retry strategy
+    # Configure retry strategy
     retry_strategy = Retry(
         total=5,
         backoff_factor=1,
         status_forcelist=[429, 500, 502, 503, 504],
-        method_whitelist=["HEAD", "GET", "OPTIONS", "POST"]
+        allowed_methods=["HEAD", "GET", "OPTIONS", "POST"]
     )
     adapter = HTTPAdapter(max_retries=retry_strategy)
     session = requests.Session()
@@ -69,7 +69,10 @@ def main():
     headers = {
         "User-Agent": "python-requests/2.31.0"
     }
-    jenkins = Jenkins(url, auth=auth, cookies=cookies, session=session, headers=headers)
+    # Initialize Jenkins connection
+    jenkins = Jenkins(url, auth=auth, cookies=cookies)
+    jenkins.requester.session = session
+    jenkins.requester.headers.update(headers)
 
     try:
         jenkins.version
