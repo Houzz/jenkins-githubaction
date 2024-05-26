@@ -3,10 +3,17 @@ from api4jenkins import Jenkins
 import logging
 import json
 from time import time, sleep
+import requests
 
 log_level = os.environ.get('INPUT_LOG_LEVEL', 'INFO')
 logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
 
+def get_csrf_crumb(jenkins_url, auth):
+    # Fetch the crumb for CSRF protection
+    response = requests.get(f'{jenkins_url}/crumbIssuer/api/json', auth=auth)
+    response.raise_for_status()
+    crumb_data = response.json()
+    return crumb_data['crumbRequestField'], crumb_data['crumb']
 
 def main():
     # Required
@@ -27,8 +34,7 @@ def main():
         auth = (username, api_token)
     else:
         auth = None
-        logging.info(
-            'Username or token not provided. Connecting without authentication.') # noqa
+        logging.info('Username or token not provided. Connecting without authentication.') # noqa
 
     if parameters:
         try:
@@ -46,6 +52,7 @@ def main():
     else:
         cookies = {}
 
+    # Initialize Jenkins connection
     jenkins = Jenkins(url, auth=auth, cookies=cookies)
 
     try:
@@ -55,6 +62,11 @@ def main():
 
     logging.info('Successfully connected to Jenkins.')
 
+    # Get CSRF crumb and update headers
+    crumb_field, crumb_value = get_csrf_crumb(url, auth)
+    jenkins.requester.headers.update({crumb_field: crumb_value})
+
+    # Trigger the job
     queue_item = jenkins.build_job(job_name, **parameters)
 
     logging.info('Requested to build job.')
@@ -68,13 +80,12 @@ def main():
         logging.info(f'Build not started yet. Waiting {interval} seconds.')
         sleep(interval)
     else:
-        raise Exception(
-            f"Could not obtain build and timed out. Waited for {start_timeout} seconds.") # noqa
+        raise Exception(f"Could not obtain build and timed out. Waited for {start_timeout} seconds.") # noqa
 
     build_url = build.url
     logging.info(f"Build URL: {build_url}")
     with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
-      print(f'build_url={build_url}', file=fh)
+        print(f'build_url={build_url}', file=fh)
     print(f"::notice title=build_url::{build_url}")
 
     if not wait:
@@ -89,15 +100,11 @@ def main():
             logging.info('Build successful 🎉')
             return
         elif result in ('FAILURE', 'ABORTED', 'UNSTABLE'):
-            raise Exception(
-                f'Build status returned "{result}". Build has failed ☹️.')
-        logging.info(
-            f'Build not finished yet. Waiting {interval} seconds. {build_url}')
+            raise Exception(f'Build status returned "{result}". Build has failed ☹️.')
+        logging.info(f'Build not finished yet. Waiting {interval} seconds. {build_url}')
         sleep(interval)
     else:
-        raise Exception(
-            f"Build has not finished and timed out. Waited for {timeout} seconds.") # noqa
-
+        raise Exception(f"Build has not finished and timed out. Waited for {timeout} seconds.") # noqa
 
 if __name__ == "__main__":
     main()
