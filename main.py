@@ -3,17 +3,9 @@ from api4jenkins import Jenkins
 import logging
 import json
 from time import time, sleep
-import requests
 
 log_level = os.environ.get('INPUT_LOG_LEVEL', 'INFO')
 logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
-
-def get_csrf_crumb(jenkins_url, auth):
-    # Fetch the crumb for CSRF protection
-    response = requests.get(f'{jenkins_url}/crumbIssuer/api/json', auth=auth)
-    response.raise_for_status()
-    crumb_data = response.json()
-    return crumb_data['crumbRequestField'], crumb_data['crumb']
 
 def main():
     # Required
@@ -61,10 +53,6 @@ def main():
         raise Exception('Could not connect to Jenkins.') from e
 
     logging.info('Successfully connected to Jenkins.')
-
-    # Get CSRF crumb and update headers
-    crumb_field, crumb_value = get_csrf_crumb(url, auth)
-    jenkins.requester.headers.update({crumb_field: crumb_value})
 
     # Trigger the job
     queue_item = jenkins.build_job(job_name, **parameters)
