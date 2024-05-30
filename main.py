@@ -11,8 +11,8 @@ logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
 class Jenkins(OriginalJenkins):
     def __init__(self, url,  **kwargs):
         super().__init__(url, **kwargs)
-        # IF headers in kwargs, update headers
-        added_headers = kwargs.get('added_headers', {})
+        # IF headers in kwargs, update headers, remove it from kwargs
+        added_headers = kwargs.pop('added_headers', None)
         if added_headers:
             self._session.headers.update(added_headers or {})
 
