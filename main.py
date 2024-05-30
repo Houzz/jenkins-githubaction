@@ -1,11 +1,17 @@
 import os
-from api4jenkins import Jenkins
 import logging
 import json
 from time import time, sleep
+from api4jenkins import Jenkins as OriginalJenkins
 
 log_level = os.environ.get('INPUT_LOG_LEVEL', 'INFO')
 logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
+
+
+class Jenkins(OriginalJenkins):
+    def __init__(self, url, auth=None, verify=True, cert=None, timeout=30, headers=None):
+        super().__init__(url, auth, verify, cert, timeout)
+        self._session.headers.update(headers or {})
 
 
 def main():
@@ -46,7 +52,9 @@ def main():
     else:
         cookies = {}
 
-    jenkins = Jenkins(url, auth=auth, cookies=cookies)
+    headers = {'Header-Name': 'Header-Value'}
+
+    jenkins = Jenkins(url, auth=auth, cookies=cookies, headers=headers)
 
     try:
         jenkins.version
