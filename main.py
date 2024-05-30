@@ -3,7 +3,6 @@ import logging
 import json
 from time import time, sleep
 from api4jenkins import Jenkins as OriginalJenkins
-from httpx import HTTPStatusError
 
 log_level = os.environ.get('INPUT_LOG_LEVEL', 'INFO')
 logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
