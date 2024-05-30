@@ -13,9 +13,10 @@ class Jenkins(OriginalJenkins):
         added_headers = kwargs.pop('added_headers', None)
 
         super().__init__(url, **kwargs)
-        self.session = self._client
-        if added_headers:
-            self.session.headers.update(added_headers or {})
+        self.http_client = super().new_http_client(**kwargs +added_headers)
+        # self.session = self.http_client.session
+        # if added_headers:
+        #     self.session.headers.update(added_headers or {})
     #
     # @property
     # def crumb(self):
