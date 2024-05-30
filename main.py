@@ -12,9 +12,9 @@ class Jenkins(OriginalJenkins):
     def __init__(self, url,  **kwargs):
         super().__init__(url, **kwargs)
         # IF headers in kwargs, update headers
-        headers = kwargs.get('headers', {})
-        if headers:
-            self._session.headers.update(headers or {})
+        added_headers = kwargs.get('added_headers', {})
+        if added_headers:
+            self._session.headers.update(added_headers or {})
 
 
 def main():
@@ -57,7 +57,7 @@ def main():
 
     headers = {'Header-Name': 'Header-Value'}
 
-    jenkins = Jenkins(url, auth=auth, cookies=cookies, headers=headers)
+    jenkins = Jenkins(url, auth=auth, cookies=cookies, added_headers=headers)
 
     try:
         jenkins.version
