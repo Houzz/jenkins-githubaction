@@ -9,9 +9,12 @@ logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
 
 
 class Jenkins(OriginalJenkins):
-    def __init__(self, url, auth=None, verify=True, cert=None, timeout=30, headers=None):
-        super().__init__(url, auth, verify, cert, timeout)
-        self._session.headers.update(headers or {})
+    def __init__(self, url,  **kwargs):
+        super().__init__(url, **kwargs)
+        # IF headers in kwargs, update headers
+        headers = kwargs.get('headers', {})
+        if headers:
+            self._session.headers.update(headers or {})
 
 
 def main():
