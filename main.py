@@ -3,6 +3,7 @@ import logging
 import json
 from time import time, sleep
 from api4jenkins import Jenkins as OriginalJenkins
+from httpx import HTTPStatusError
 
 log_level = os.environ.get('INPUT_LOG_LEVEL', 'INFO')
 logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
@@ -13,9 +14,25 @@ class Jenkins(OriginalJenkins):
         added_headers = kwargs.pop('added_headers', None)
 
         super().__init__(url, **kwargs)
-        # IF headers in kwargs, update headers, remove it from kwargs
+        self.session = self._client
         if added_headers:
-            self._session.headers.update(added_headers or {})
+            self.session.headers.update(added_headers or {})
+    #
+    # @property
+    # def crumb(self):
+    #     '''Crumb of Jenkins'''
+    #     if self._crumb is None:
+    #         with self._sync_lock:
+    #             if self._crumb is None:
+    #                 try:
+    #                     _crumb = self._request(
+    #                         'GET', f'{self.url}crumbIssuer/api/json').json()
+    #                     self._crumb = {
+    #                         _crumb['crumbRequestField']: _crumb['crumb']}
+    #                 except HTTPStatusError:
+    #                     self._crumb = {}
+    #     return self._crumb
+
 
 
 def main():
