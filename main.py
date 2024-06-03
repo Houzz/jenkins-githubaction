@@ -3,7 +3,7 @@ import logging
 import json
 from time import time, sleep
 from api4jenkins import Jenkins as OriginalJenkins
-from api4jenkins.http import new_async_http_client, new_http_client
+from api4jenkins import new_http_client
 
 
 log_level = os.environ.get('INPUT_LOG_LEVEL', 'INFO')
@@ -15,7 +15,7 @@ class Jenkins(OriginalJenkins):
         added_headers = kwargs.pop('added_headers', None)
 
         super().__init__(url, **kwargs)
-        self.http_client = new_http_client(**kwargs +added_headers)
+        self.http_client = new_http_client(**kwargs + added_headers)
         # self.session = self.http_client.session
         # if added_headers:
         #     self.session.headers.update(added_headers or {})
