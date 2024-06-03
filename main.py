@@ -6,7 +6,8 @@ from time import time, sleep
 from api4jenkins import Jenkins as OriginalJenkins
 print("PYTHONPATH:", sys.path)
 sys.path.append(os.path.abspath('/app/api4jenkins'))
-
+# print python version
+print(sys.version)
 from api4jenkins.http import new_http_client
 
 
