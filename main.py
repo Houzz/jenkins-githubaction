@@ -1,8 +1,11 @@
 import os
 import logging
 import json
+import sys
 from time import time, sleep
 from api4jenkins import Jenkins as OriginalJenkins
+print("PYTHONPATH:", sys.path)
+
 from api4jenkins.http import new_http_client
 
 
