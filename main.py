@@ -5,6 +5,8 @@ import sys
 from time import time, sleep
 from api4jenkins import Jenkins as OriginalJenkins
 print("PYTHONPATH:", sys.path)
+print("Command-line arguments:", sys.argv)
+
 sys.path.append(os.path.abspath('/app/api4jenkins'))
 # print python version
 print(sys.version)
