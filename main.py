@@ -8,7 +8,7 @@ print("PYTHONPATH:", sys.path)
 print("Command-line arguments:", sys.argv)
 print("Environment variables:")
 for key, value in os.environ.items():
-    print(f"{key}: {value}")
+    print(f"{key}={value};")
 
 sys.path.append(os.path.abspath('/app/api4jenkins'))
 # print python version
