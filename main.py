@@ -9,6 +9,8 @@ logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
 
 
 def main():
+    print(os.environ['GITHUB_RUN_NUMBER'])
+    print(os.environ['GITHUB_RUN_ATTEMPT'])
     # Required
     url = os.environ["INPUT_URL"]
     job_name = os.environ["INPUT_JOB_NAME"]
