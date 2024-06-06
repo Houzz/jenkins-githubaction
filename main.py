@@ -18,9 +18,6 @@ print(sys.version)
 from api4jenkins.http import new_http_client
 
 
-log_level = os.environ.get('INPUT_LOG_LEVEL', 'INFO')
-logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
-
 
 class Jenkins(OriginalJenkins):
     def __init__(self, url,  **kwargs):
@@ -84,6 +81,10 @@ def main():
     jenkins.build_job(job_name, **parameters)
 
     logging.info('Requested to build job.')
+
+    github_run_id = os.environ.get('GITHUB_RUN_ID')
+    if not github_run_id:
+        raise Exception('GITHUB_RUN_ID not provided.')
 
     t0 = time()
 
