@@ -62,6 +62,7 @@ def main():
     github_run_id = os.environ.get('GITHUB_RUN_ID')
     if not github_run_id:
         raise Exception('GITHUB_RUN_ID not provided.')
+    logging.info("GITHUB_RUN_ID: " + github_run_id)
 
     t0 = time()
 
@@ -69,6 +70,7 @@ def main():
     build = None
     while time() - t0 < start_timeout:
         last_job = jenkins[job_name].get_last_build()
+        logging.info(last_job.description)
         if github_run_id in last_job.description:
                 build = last_job
                 break
