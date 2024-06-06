@@ -5,24 +5,7 @@ import sys
 from time import time, sleep
 
 import requests
-from api4jenkins import Jenkins as OriginalJenkins
-print("PYTHONPATH:", sys.path)
-print("Command-line arguments:", sys.argv)
-
-
-sys.path.append(os.path.abspath('/app/api4jenkins'))
-from api4jenkins.http import new_http_client
-
-
-
-class Jenkins(OriginalJenkins):
-    def __init__(self, url,  **kwargs):
-        added_headers = kwargs.pop('added_headers', {})
-
-        super().__init__(url, **kwargs)
-        http_args_dict = kwargs.copy()
-        http_args_dict.update(added_headers)
-        self.http_client = new_http_client(**http_args_dict)
+from api4jenkins import Jenkins
 
 
 def main():
