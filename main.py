@@ -59,7 +59,8 @@ def main():
 
     logging.info('Requested to build job.')
 
-    unique_github_run_id = os.environ.get('UNIQUE_GITHUB_RUN_ID')
+    # get UNIQUE_GITHUB_RUN_ID from parameters
+    unique_github_run_id = parameters.get('UNIQUE_GITHUB_RUN_ID', None)
     if not unique_github_run_id :
         raise Exception('GITHUB_RUN_ID not provided.')
     logging.info("GITHUB_RUN_ID: " + unique_github_run_id)
