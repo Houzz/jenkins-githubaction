@@ -9,8 +9,6 @@ logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
 
 
 def main():
-    print(os.environ['GITHUB_RUN_NUMBER'])
-    print(os.environ['GITHUB_RUN_ATTEMPT'])
     # Required
     url = os.environ["INPUT_URL"]
     job_name = os.environ["INPUT_JOB_NAME"]
@@ -62,9 +60,11 @@ def main():
     logging.info('Requested to build job.')
 
     github_run_id = os.environ.get('GITHUB_RUN_ID')
-    if not github_run_id:
+    github_run_attempt = os.environ.get('GITHUB_RUN_ATTEMPT')
+    if not github_run_id or not github_run_attempt:
         raise Exception('GITHUB_RUN_ID not provided.')
-    logging.info("GITHUB_RUN_ID: " + github_run_id)
+    logging.info("GITHUB_RUN_ID: " + github_run_id + " GITHUB_RUN_ATTEMPT: " + github_run_attempt)
+    combined_test_string = f'{github_run_id}_{github_run_attempt}'
 
     t0 = time()
 
@@ -73,7 +73,7 @@ def main():
     while time() - t0 < start_timeout:
         last_job = jenkins[job_name].get_last_build()
         logging.info(last_job.description)
-        if github_run_id in last_job.description:
+        if combined_test_string in last_job.description:
                 build = last_job
                 break
         if build:
