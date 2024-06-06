@@ -1,11 +1,11 @@
 import os
+from api4jenkins import Jenkins
 import logging
 import json
-import sys
 from time import time, sleep
 
-import requests
-from api4jenkins import Jenkins
+log_level = os.environ.get('INPUT_LOG_LEVEL', 'INFO')
+logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
 
 
 def main():
@@ -45,7 +45,6 @@ def main():
             raise Exception('`cookies` is not valid JSON.') from e
     else:
         cookies = {}
-
 
     jenkins = Jenkins(url, auth=auth, cookies=cookies)
 
