@@ -66,19 +66,19 @@ def main():
 
     t0 = time()
 
+    logging.info("Waiting for job to start.")
     build = None
     while time() - t0 < start_timeout:
         last_job = jenkins[job_name].get_last_build()
-        logging.info("Waiting for job to start.")
         if last_job.description is not None:
             if unique_github_run_id in last_job.description:
                     build = last_job
                     break
         if build:
             break
-        sleep(5)
+        sleep(1)
     else:
-        raise Exception(f"No job with GITHUB_RUN_ID={github_run_id} found within the start timeout.")
+        raise Exception(f"No job with UNIQUE_GITHUB_RUN_ID={unique_github_run_id} was found. It was probably started - but I couldn't catch the URL- please check in the job page on jenkins: {url}/job/{job_name}")
 
     build_url = build.url
     logging.info(f"Build URL: {build_url}")
