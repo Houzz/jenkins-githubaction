@@ -71,6 +71,7 @@ def main():
     build = None
     while time() - t0 < start_timeout:
         last_job = jenkins[job_name].get_last_build()
+        logging.info("Waiting for job to start.")
         logging.info(last_job.description)
         if last_job.description is not None:
             if combined_test_string in last_job.description:
