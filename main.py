@@ -3,6 +3,8 @@ import logging
 import json
 import sys
 from time import time, sleep
+
+import requests
 from api4jenkins import Jenkins as OriginalJenkins
 print("PYTHONPATH:", sys.path)
 print("Command-line arguments:", sys.argv)
@@ -22,29 +24,12 @@ logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
 
 class Jenkins(OriginalJenkins):
     def __init__(self, url,  **kwargs):
-        added_headers = kwargs.pop('added_headers', None)
+        added_headers = kwargs.pop('added_headers', {})
 
         super().__init__(url, **kwargs)
-        self.http_client = new_http_client(**kwargs + added_headers)
-        # self.session = self.http_client.session
-        # if added_headers:
-        #     self.session.headers.update(added_headers or {})
-    #
-    # @property
-    # def crumb(self):
-    #     '''Crumb of Jenkins'''
-    #     if self._crumb is None:
-    #         with self._sync_lock:
-    #             if self._crumb is None:
-    #                 try:
-    #                     _crumb = self._request(
-    #                         'GET', f'{self.url}crumbIssuer/api/json').json()
-    #                     self._crumb = {
-    #                         _crumb['crumbRequestField']: _crumb['crumb']}
-    #                 except HTTPStatusError:
-    #                     self._crumb = {}
-    #     return self._crumb
-
+        http_args_dict = kwargs.copy()
+        http_args_dict.update(added_headers)
+        self.http_client = new_http_client(**http_args_dict)
 
 
 def main():
@@ -85,7 +70,7 @@ def main():
     else:
         cookies = {}
 
-    headers = {'Header-Name': 'Header-Value'}
+    headers = {"headers":{"User-Agent": "python-requests/2.31.0"}}
 
     jenkins = Jenkins(url, auth=auth, cookies=cookies, added_headers=headers)
 
@@ -96,21 +81,24 @@ def main():
 
     logging.info('Successfully connected to Jenkins.')
 
-    queue_item = jenkins.build_job(job_name, **parameters)
+    jenkins.build_job(job_name, **parameters)
 
     logging.info('Requested to build job.')
 
     t0 = time()
-    sleep(interval)
+
+
+    build = None
     while time() - t0 < start_timeout:
-        build = queue_item.get_build()
+        last_job = jenkins[job_name].get_last_build()
+        if github_run_id in last_job.description:
+                build = last_job
+                break
         if build:
             break
-        logging.info(f'Build not started yet. Waiting {interval} seconds.')
-        sleep(interval)
+        sleep(5)
     else:
-        raise Exception(
-            f"Could not obtain build and timed out. Waited for {start_timeout} seconds.") # noqa
+        raise Exception(f"No job with GITHUB_RUN_ID={github_run_id} found within the start timeout.")
 
     build_url = build.url
     logging.info(f"Build URL: {build_url}")
