@@ -46,9 +46,8 @@ def main():
     else:
         cookies = {}
 
-    headers = {"headers":{"User-Agent": "python-requests/2.31.0"}}
 
-    jenkins = Jenkins(url, auth=auth, cookies=cookies, added_headers=headers)
+    jenkins = Jenkins(url, auth=auth, cookies=cookies)
 
     try:
         jenkins.version
