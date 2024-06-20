@@ -1,6 +1,7 @@
 name: "Jenkins-Action"
-description: "Start Jenkins jobs and report back url and status of build"
+description: "Start Jenkins jobs and report back URL and status of build"
 author: "Josh Levy-Kramer"
+
 inputs:
   url:
     description: "Jenkins URL including http/https protocol"
@@ -36,9 +37,17 @@ inputs:
     description: "How frequently in seconds to query Jenkins for build status"
     required: false
     default: "5"
+  image_address:
+    description: "Docker image address including ECR part"
+    required: true
+
 outputs:
   build_url:
     description: "Jenkins build URL"
+
 runs:
   using: "docker"
-  image: "Dockerfile"
+  image: ${{ inputs.image_address }}
+
+permissions:
+  contents: read
