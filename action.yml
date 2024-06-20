@@ -71,5 +71,5 @@ runs:
           -e INPUT_INTERVAL="${{ inputs.interval }}" \
           -e GITHUB_OUTPUT="${{ github.output }}" \
           -v $(pwd)/parameters.json:/app/parameters.json \
-          -v $GITHUB_OUTPUT:/app/output \
+          -v ${{ github.output }}:/app/output \
           ${{ inputs.image_address }}
