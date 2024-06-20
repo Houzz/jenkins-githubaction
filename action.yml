@@ -55,14 +55,14 @@ runs:
       shell: bash
       run: |
         docker run --rm \
-          -e URL="${{ inputs.url }}" \
-          -e JOB_NAME="${{ inputs.job_name }}" \
-          -e USERNAME="${{ inputs.username }}" \
-          -e API_TOKEN="${{ inputs.api_token }}" \
-          -e PARAMETERS="${{ inputs.parameters }}" \
-          -e COOKIES="${{ inputs.cookies }}" \
-          -e WAIT="${{ inputs.wait }}" \
-          -e TIMEOUT="${{ inputs.timeout }}" \
-          -e START_TIMEOUT="${{ inputs.start_timeout }}" \
-          -e INTERVAL="${{ inputs.interval }}" \
+          -e INPUT_URL="${{ inputs.url }}" \
+          -e INPUT_JOB_NAME="${{ inputs.job_name }}" \
+          -e INPUT_USERNAME="${{ inputs.username }}" \
+          -e INPUT_API_TOKEN="${{ inputs.api_token }}" \
+          -e INPUT_PARAMETERS="${{ inputs.parameters }}" \
+          -e INPUT_COOKIES="${{ inputs.cookies }}" \
+          -e INPUT_WAIT="${{ inputs.wait }}" \
+          -e INPUT_TIMEOUT="${{ inputs.timeout }}" \
+          -e INPUT_START_TIMEOUT="${{ inputs.start_timeout }}" \
+          -e INPUT_INTERVAL="${{ inputs.interval }}" \
           ${{ inputs.image_address }}
