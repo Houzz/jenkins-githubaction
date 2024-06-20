@@ -42,6 +42,33 @@ inputs:
 outputs:
   build_url:
     description: "Jenkins build URL"
+
+
 runs:
-  using: "docker"
-  image: ${{ inputs.image_address }}
+  using: "composite"
+  steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-1
+
+    - name: Pull Docker image
+      run: docker pull ${{ inputs.image_address }}
+      shell: bash
+
+    - name: Run Docker container
+      shell: bash
+      run: |
+        docker run -e URL=${{ inputs.url }} \
+                   -e JOB_NAME=${{ inputs.job_name }} \
+                   -e USERNAME=${{ inputs.username }} \
+                   -e API_TOKEN=${{ inputs.api_token }} \
+                   -e PARAMETERS=${{ inputs.parameters }} \
+                   -e COOKIES=${{ inputs.cookies }} \
+                   -e WAIT=${{ inputs.wait }} \
+                   -e TIMEOUT=${{ inputs.timeout }} \
+                   -e START_TIMEOUT=${{ inputs.start_timeout }} \
+                   -e INTERVAL=${{ inputs.interval }} \
+                   ${{ inputs.image_address }}
