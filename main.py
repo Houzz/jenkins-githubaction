@@ -32,6 +32,7 @@ def main():
 
     if parameters:
         try:
+            print(parameters)
             parameters = json.loads(parameters.replace("'", "\""))
         except json.JSONDecodeError as e:
             raise Exception('`parameters` is not valid JSON.') from e
