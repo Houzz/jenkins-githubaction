@@ -32,7 +32,7 @@ def main():
 
     if parameters:
         try:
-            parameters = json.loads(parameters)
+            parameters = json.loads(parameters.replace("'", "\""))
         except json.JSONDecodeError as e:
             raise Exception('`parameters` is not valid JSON.') from e
     else:
@@ -40,7 +40,7 @@ def main():
 
     if cookies:
         try:
-            cookies = json.loads(cookies)
+            cookies = json.loads(cookies.replace("'", "\""))
         except json.JSONDecodeError as e:
             raise Exception('`cookies` is not valid JSON.') from e
     else:
