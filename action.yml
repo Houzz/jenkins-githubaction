@@ -48,7 +48,7 @@ runs:
   using: "composite"
   steps:
     - name: Pull Docker image
-      run: docker pull ${{ inputs.image_address }}
+      run: ls /home/runner/.docker && docker pull ${{ inputs.image_address }}
       shell: bash
 
     - name: Run Docker container
