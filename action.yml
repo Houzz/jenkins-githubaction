@@ -69,5 +69,6 @@ runs:
           -e INPUT_TIMEOUT="${{ inputs.timeout }}" \
           -e INPUT_START_TIMEOUT="${{ inputs.start_timeout }}" \
           -e INPUT_INTERVAL="${{ inputs.interval }}" \
+          -e GITHUB_OUTPUT="${{ github.output }}" \
           -v $(pwd)/parameters.json:/app/parameters.json \
           ${{ inputs.image_address }}
