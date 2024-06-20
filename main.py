@@ -30,10 +30,13 @@ def main():
         logging.info(
             'Username or token not provided. Connecting without authentication.') # noqa
 
-    if parameters:
+
+    if os.path.exists('/app/parameters.json'):
+        with open('/app/parameters.json', 'r') as f:
+            parameters = f.read()
+
         try:
-            print(parameters)
-            parameters = json.loads(parameters.replace("'", "\""))
+            parameters = json.loads(parameters)
         except json.JSONDecodeError as e:
             raise Exception('`parameters` is not valid JSON.') from e
     else:

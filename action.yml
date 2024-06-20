@@ -51,6 +51,10 @@ runs:
       run: ls /home/runner/.docker && docker pull ${{ inputs.image_address }}
       shell: bash
 
+    - name: Write parameters to file
+      shell: bash
+      run: echo '${{ inputs.parameters }}' > parameters.json
+
     - name: Run Docker container
       shell: bash
       run: |
@@ -65,4 +69,5 @@ runs:
           -e INPUT_TIMEOUT="${{ inputs.timeout }}" \
           -e INPUT_START_TIMEOUT="${{ inputs.start_timeout }}" \
           -e INPUT_INTERVAL="${{ inputs.interval }}" \
+          -v $(pwd)/parameters.json:/app/parameters.json \
           ${{ inputs.image_address }}
