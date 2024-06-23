@@ -30,7 +30,11 @@ def main():
         logging.info(
             'Username or token not provided. Connecting without authentication.') # noqa
 
-    if parameters:
+
+    if os.path.exists('/app/parameters.json'):
+        with open('/app/parameters.json', 'r') as f:
+            parameters = f.read()
+
         try:
             parameters = json.loads(parameters)
         except json.JSONDecodeError as e:
@@ -40,7 +44,7 @@ def main():
 
     if cookies:
         try:
-            cookies = json.loads(cookies)
+            cookies = json.loads(cookies.replace("'", "\""))
         except json.JSONDecodeError as e:
             raise Exception('`cookies` is not valid JSON.') from e
     else:
