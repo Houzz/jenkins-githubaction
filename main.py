@@ -70,7 +70,9 @@ def main():
     logging.info("GITHUB_RUN_ID: " + unique_github_run_id)
 
     t0 = time()
+    logging.info("sleeping for 5 sec")
 
+    sleep(5)
     logging.info("Waiting for job to start.")
     build = None
     while time() - t0 < start_timeout:
