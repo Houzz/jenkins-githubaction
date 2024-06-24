@@ -76,7 +76,7 @@ def main():
     logging.info("Waiting for job to start.")
     build = None
     while time() - t0 < start_timeout:
-        logging.info("hey")
+        logging.info("debug")
         last_job = jenkins[job_name].get_last_build()
         if last_job.description is not None:
             logging.info("inside last_job.description")
