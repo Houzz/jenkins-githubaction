@@ -74,9 +74,10 @@ def main():
     logging.info("Waiting for job to start.")
     build = None
     while time() - t0 < start_timeout:
-        print("hey")
+        logging.info("hey")
         last_job = jenkins[job_name].get_last_build()
         if last_job.description is not None:
+            logging.info("inside last_job.description")
             if unique_github_run_id in last_job.description:
                     build = last_job
                     break
