@@ -63,7 +63,7 @@ runs:
           -e INPUT_JOB_NAME="${{ inputs.job_name }}" \
           -e INPUT_USERNAME="${{ inputs.username }}" \
           -e INPUT_API_TOKEN="${{ inputs.api_token }}" \
-          -e INPUT_PARAMETERS="${{ inputs.parameters }}" \
+          -e INPUT_PARAMETERS='${{ inputs.parameters }}' \
           -e INPUT_COOKIES="${{ inputs.cookies }}" \
           -e INPUT_WAIT="${{ inputs.wait }}" \
           -e INPUT_TIMEOUT="${{ inputs.timeout }}" \
