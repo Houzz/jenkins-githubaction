@@ -16,7 +16,6 @@ def main():
     # Optional
     username = os.environ.get("INPUT_USERNAME")
     api_token = os.environ.get("INPUT_API_TOKEN")
-    parameters = os.environ.get("INPUT_PARAMETERS")
     cookies = os.environ.get("INPUT_COOKIES")
     wait = bool(os.environ.get("INPUT_WAIT"))
     timeout = int(os.environ.get("INPUT_TIMEOUT"))
@@ -35,6 +34,12 @@ def main():
         with open('/app/parameters.json', 'r') as f:
             parameters = f.read()
 
+        try:
+            parameters = json.loads(parameters)
+        except json.JSONDecodeError as e:
+            raise Exception('`parameters` is not valid JSON.') from e
+    elif os.environ.get('INPUT_PARAMETERS'):
+        parameters = os.environ.get('INPUT_PARAMETERS')
         try:
             parameters = json.loads(parameters)
         except json.JSONDecodeError as e:
@@ -74,7 +79,7 @@ def main():
     logging.info("Waiting for job to start.")
     build = None
     while time() - t0 < start_timeout:
-        last_job = jenkins[job_name].get_last_build()
+        last_job = jenkins[job_name][f"{parameters['SERVICE']}-{parameters['ENV']}"]
         if last_job.description is not None:
             if unique_github_run_id in last_job.description:
                     build = last_job
