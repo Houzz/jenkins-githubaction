@@ -23,7 +23,7 @@ inputs:
   wait:
     description: "Should the runner wait for the build to finish and provide ok status"
     required: false
-    default: "True"
+    default: "true"
   timeout:
     description: "Timeout in seconds for build to complete"
     required: false

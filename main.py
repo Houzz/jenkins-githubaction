@@ -17,7 +17,7 @@ def main():
     username = os.environ.get("INPUT_USERNAME")
     api_token = os.environ.get("INPUT_API_TOKEN")
     cookies = os.environ.get("INPUT_COOKIES")
-    wait = bool(os.environ.get("INPUT_WAIT"))
+    wait = os.environ["INPUT_WAIT"].lower() == "true"
     timeout = int(os.environ.get("INPUT_TIMEOUT"))
     start_timeout = int(os.environ.get("INPUT_START_TIMEOUT"))
     interval = int(os.environ.get("INPUT_INTERVAL"))
