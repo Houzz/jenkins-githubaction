@@ -16,7 +16,6 @@ def main():
     # Optional
     username = os.environ.get("INPUT_USERNAME")
     api_token = os.environ.get("INPUT_API_TOKEN")
-    parameters = os.environ.get("INPUT_PARAMETERS")
     cookies = os.environ.get("INPUT_COOKIES")
     wait = bool(os.environ.get("INPUT_WAIT"))
     timeout = int(os.environ.get("INPUT_TIMEOUT"))
@@ -30,7 +29,17 @@ def main():
         logging.info(
             'Username or token not provided. Connecting without authentication.') # noqa
 
-    if parameters:
+
+    if os.path.exists('/app/parameters.json'):
+        with open('/app/parameters.json', 'r') as f:
+            parameters = f.read()
+
+        try:
+            parameters = json.loads(parameters)
+        except json.JSONDecodeError as e:
+            raise Exception('`parameters` is not valid JSON.') from e
+    elif os.environ.get('INPUT_PARAMETERS'):
+        parameters = os.environ.get('INPUT_PARAMETERS')
         try:
             parameters = json.loads(parameters)
         except json.JSONDecodeError as e:
@@ -40,7 +49,7 @@ def main():
 
     if cookies:
         try:
-            cookies = json.loads(cookies)
+            cookies = json.loads(cookies.replace("'", "\""))
         except json.JSONDecodeError as e:
             raise Exception('`cookies` is not valid JSON.') from e
     else:
@@ -69,14 +78,16 @@ def main():
 
     logging.info("Waiting for job to start.")
     build = None
+    last_job = None
     while time() - t0 < start_timeout:
-        last_job = jenkins[job_name].get_last_build()
-        if last_job.description is not None:
-            if unique_github_run_id in last_job.description:
-                    build = last_job
-                    break
-        if build:
-            break
+        last_job = jenkins[job_name][f"{parameters['SERVICE']}-{parameters['ENV']}"]
+        if last_job:
+            if last_job.description is not None:
+                if unique_github_run_id in last_job.description:
+                        build = last_job
+                        break
+            if build:
+                break
         sleep(1)
     else:
         raise Exception(f"No job with UNIQUE_GITHUB_RUN_ID={unique_github_run_id} was found. It was probably started - but I couldn't catch the URL- please check in the job page on jenkins: {url}/job/{job_name}")
