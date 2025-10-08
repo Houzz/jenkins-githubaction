@@ -8,6 +8,15 @@ log_level = os.environ.get('INPUT_LOG_LEVEL', 'INFO')
 logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
 
 
+def output_build_description(build):
+    """Output the build description to GitHub Actions output and logs"""
+    build_description = build.description if build.description else "No description available"
+    logging.info(f"Build Description: {build_description}")
+    with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+        print(f'build_description={build_description}', file=fh)
+    print(f"::notice title=build_description::{build_description}")
+
+
 def main():
     # Required
     url = os.environ["INPUT_URL"]
@@ -100,6 +109,7 @@ def main():
 
     if not wait:
         logging.info("Not waiting for build to finish.")
+        output_build_description(build)
         return
 
     t0 = time()
@@ -108,14 +118,17 @@ def main():
         result = build.result
         if result == 'SUCCESS':
             logging.info('Build successful 🎉')
+            output_build_description(build)
             return
         elif result in ('FAILURE', 'ABORTED', 'UNSTABLE'):
+            output_build_description(build)
             raise Exception(
                 f'Build status returned "{result}". Build has failed ☹️.')
         logging.info(
             f'Build not finished yet. Waiting {interval} seconds. {build_url}')
         sleep(interval)
     else:
+        output_build_description(build)
         raise Exception(
             f"Build has not finished and timed out. Waited for {timeout} seconds.") # noqa
 

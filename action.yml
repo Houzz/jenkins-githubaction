@@ -42,6 +42,8 @@ inputs:
 outputs:
   build_url:
     description: "Jenkins build URL"
+  build_description:
+    description: "Jenkins build description"
 
 
 runs:
