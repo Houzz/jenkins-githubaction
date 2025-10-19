@@ -8,6 +8,15 @@ log_level = os.environ.get('INPUT_LOG_LEVEL', 'INFO')
 logging.basicConfig(format='JENKINS_ACTION: %(message)s', level=log_level)
 
 
+def output_build_description(build):
+    """Output the build description to GitHub Actions output and logs"""
+    build_description = build.description if build.description else "No description available"
+    logging.info(f"Build Description: {build_description}")
+    with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+        print(f'build_description={build_description}', file=fh)
+    print(f"::notice title=build_description::{build_description}")
+
+
 def main():
     # Required
     url = os.environ["INPUT_URL"]
@@ -74,13 +83,21 @@ def main():
         raise Exception('GITHUB_RUN_ID not provided.')
     logging.info("GITHUB_RUN_ID: " + unique_github_run_id)
 
+    # Get build job name from parameters or construct from SERVICE-ENV
+    build_job_name = parameters.get('BUILD_JOB_NAME', '').strip()
+    if not build_job_name:
+        build_job_name = f"{parameters['SERVICE']}-{parameters['ENV']}"
+        logging.info(f"BUILD_JOB_NAME not provided, using: {build_job_name}")
+    else:
+        logging.info(f"Using provided BUILD_JOB_NAME: {build_job_name}")
+
     t0 = time()
 
     logging.info("Waiting for job to start.")
     build = None
     last_job = None
     while time() - t0 < start_timeout:
-        last_job = jenkins[job_name][f"{parameters['SERVICE']}-{parameters['ENV']}"]
+        last_job = jenkins[job_name][build_job_name]
         if last_job:
             if last_job.description is not None:
                 if unique_github_run_id in last_job.description:
@@ -100,6 +117,7 @@ def main():
 
     if not wait:
         logging.info("Not waiting for build to finish.")
+        output_build_description(build)
         return
 
     t0 = time()
@@ -108,14 +126,17 @@ def main():
         result = build.result
         if result == 'SUCCESS':
             logging.info('Build successful 🎉')
+            output_build_description(build)
             return
         elif result in ('FAILURE', 'ABORTED', 'UNSTABLE'):
+            output_build_description(build)
             raise Exception(
                 f'Build status returned "{result}". Build has failed ☹️.')
         logging.info(
             f'Build not finished yet. Waiting {interval} seconds. {build_url}')
         sleep(interval)
     else:
+        output_build_description(build)
         raise Exception(
             f"Build has not finished and timed out. Waited for {timeout} seconds.") # noqa
 
